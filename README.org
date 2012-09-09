@@ -1,14 +1,15 @@
 * vc-git-check-status
 
 This is an Emacs extension that warns user when quitting Emacs and
-leaving a git repositorie in a dirty state.
+leaving a git repository that has some file opened in Emacs in a dirty
+state.
 
 * Installation and configuration
 
 You just have to put the file vc-git-check-status.el in you load path
 and require the feature from your .emacs.
 
-#+begin_src elisp
+#+begin_src emacs-lisp
   (require 'vc-git-check-status)
 #+end_src
 
