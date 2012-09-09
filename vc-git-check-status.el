@@ -42,8 +42,9 @@
 
 (defvar vc-git-check-alist
   '((".*" unpushed changes))
-  "Alist of file-name patterns vs corresponding states to
-  check.")
+  "Alist of file-name patterns vs corresponding states to check.
+  The list of the checks currently implemented is: dirty,
+  dirty-ignore-submodule, changes, untracked, unpushed.")
 
 (defvar vc-git-check nil
   "List of states to check.")
