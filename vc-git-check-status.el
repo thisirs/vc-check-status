@@ -1,5 +1,4 @@
-;;; vc-git-check-status.el --- Warn you when quitting emacs and
-;;; leaving repo dirty.
+;;; vc-git-check-status.el --- Warn you when quitting emacs and leaving repo dirty.
 
 ;; Copyright (C) 2012 Sylvain Rousseau <thisirs at gmail dot com>
 
@@ -29,6 +28,8 @@
 ;; buffer-local variable `vc-git-check' specifies the checks to
 ;; perform. If it is not set, the associative list
 ;; `vc-git-check-alist' is looked into.
+
+;;; Code:
 
 (require 'vc-git)
 
