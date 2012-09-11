@@ -85,7 +85,7 @@ Untracked files are ignored."
   "Return t if local repository has some commit on some branch
 not pushed yet."
   (with-temp-buffer
-    (vc-git-command t nil nil "log" "--branches" "--not"
+    (vc-git-command t 0 nil "log" "--branches" "--not"
                     "--remotes" "--simplify-by-decoration"
                     "--decorate" "--oneline")
     (> (buffer-size) 0)))
