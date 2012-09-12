@@ -38,6 +38,7 @@
     (dirty . "changes or untracked files")
     (dirty-ignore-submodule . "changes or untracked files")
     (changes . "changes")
+    (stash . "stashed changes")
     (untracked . "untracked files"))
   "Alist of symbols and corresponding description.")
 
@@ -83,12 +84,17 @@ Untracked files are ignored."
 
 (defun vc-git-check-unpushed-p ()
   "Return t if local repository has some commit on some branch
-not pushed yet."
+not pushed yet. Using the git command: git log --branches --not --remotes --simplify-by-decoration --decorate --oneline"
   (with-temp-buffer
     (vc-git-command t 0 nil "log" "--branches" "--not"
                     "--remotes" "--simplify-by-decoration"
                     "--decorate" "--oneline")
     (> (buffer-size) 0)))
+
+(defun vc-git-check-stash-p ()
+  "Return t if local repository has changes stashed."
+  (with-temp-buffer
+    (eq 0 (vc-git-command t 1 nil "stash" "show"))))
 
 (defun vc-git-check-repos ()
   "Check all known repos and ask for confirmation.
