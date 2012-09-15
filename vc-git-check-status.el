@@ -84,12 +84,14 @@ Untracked files are ignored."
 
 (defun vc-git-check-unpushed-p ()
   "Return t if local repository has some commit on some branch
-not pushed yet. Using the git command: git log --branches --not --remotes --simplify-by-decoration --decorate --oneline"
-  (with-temp-buffer
-    (vc-git-command t 0 nil "log" "--branches" "--not"
-                    "--remotes" "--simplify-by-decoration"
-                    "--decorate" "--oneline")
-    (> (buffer-size) 0)))
+not pushed yet. It first checks if there is any remote repository
+and then lists local commits that are not remote ones."
+  (and (with-temp-buffer
+         (vc-git-command t 0 nil "remote" "show")
+         (> (buffer-size) 0))
+       (with-temp-buffer
+         (vc-git-command t 0 nil "log" "--branches" "--not" "--remotes" )
+         (> (buffer-size) 0))))
 
 (defun vc-git-check-stash-p ()
   "Return t if local repository has changes stashed."
