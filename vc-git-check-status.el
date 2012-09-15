@@ -136,7 +136,7 @@ you really want to quit."
 
                (if error
                    (yes-or-no-p
-                    (format "An error occured on repo %s: %s; Exit anyway?"
+                    (format "An error occurred on repo %s: %s; Exit anyway?"
                             (caar repos) error))
                  (or
                   (not checks-ok)
