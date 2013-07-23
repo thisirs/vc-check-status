@@ -51,6 +51,16 @@
 (defvar vc-git-check nil
   "List of states to check.")
 (make-variable-buffer-local 'vc-git-check)
+(put 'vc-git-check 'safe-local-variable 'vc-git-check-safe-p)
+
+(defun vc-git-check-safe-p (keywords)
+  (and (listp keywords)
+       (let ((list (mapcar #'car vc-git-sym-name))
+             (safe t))
+         (while (and safe keywords)
+           (setq safe (memq (car keywords) list)
+                 keywords (cdr keywords)))
+         (null (null safe)))))
 
 (defun vc-git-check-dirty-p ()
   "Return t if local repository is dirty."
