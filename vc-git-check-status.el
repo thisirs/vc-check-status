@@ -1,4 +1,4 @@
-;;; vc-git-check-status.el --- Warn you when quitting emacs and leaving repo dirty.
+;;; vc-git-check-status.el --- Git checking functions
 
 ;; Copyright (C) 2012 Sylvain Rousseau <thisirs at gmail dot com>
 
