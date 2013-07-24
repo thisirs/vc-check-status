@@ -20,6 +20,16 @@
 
 ;;; Commentary:
 
+;; This package warns you when a local repository is in a state that
+;; needs to be changed before quitting emacs. For example, it is able
+;; to warn you when there are some unpushed commits or if the
+;; repository is dirty. The functions of the form
+;; `vc-<BACKEND>-check-*-p' perform the check. The checks are
+;; controlled in two ways: The buffer-local variable `vc-check'
+;; specifies the checks to perform. If it is not set, the associative
+;; list `vc-check-alist' is looked into.
+
+
 (defvar vc-check-alist
   '((".*" unpushed changes))
   "Alist of file-name patterns vs corresponding states to check.
