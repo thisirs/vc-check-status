@@ -41,104 +41,93 @@
          (null (null safe)))))
 
 (defun vc-check--responsible-backend (file)
+  "Return nil if FILE is not under a version controlled system.
+Return the version controlled system."
   (catch 'found
     (dolist (backend vc-handled-backends)
       (let ((path (vc-call-backend backend 'responsible-p file)))
         (if path (throw 'found (list path backend)))))))
 
-(defun vc-get-repos ()
-  "Return a list of elements of the form (PATH [KEYWORDS]...)
-where PATH is the path to a repositories and KEYWORDS the list of
-the checks to perform on it when quitting."
-  (let ((-compare-fn (lambda (a b) (equal (car a) (car b))))
-        repos)
+(defun vc-check--get-repositories ()
+  "Return a list of elements of the form (PATH BACKEND
+KEYWORDS...) where PATH is the path to a repository, BACKEND
+its backend and KEYWORDS the list of the checks to perform on it
+when quitting."
+  (let (result)
+    (dolist (buffer (buffer-list) result)
+      (let* ((file (buffer-file-name buffer)))
+        (when file
+          (let ((backend (vc-check--responsible-backend file)))
+            (unless (or (not backend) (assoc (car backend) result))
+              (let (temp)
+                (cond
+                 ((local-variable-p 'vc-checks buffer)
+                  (push (append backend (buffer-local-value vc-checks)) result))
+                 ((setq temp (assoc-default (car backend) vc-check-alist 'string-match))
+                  (push (append backend temp) result)))))))))
+    result))
 
-    (--keep
-     (vc-check--responsible-backend it)
-     (-distinct
-      (--keep
-       (when (buffer-file-name it)
-         (file-name-directory (buffer-file-name it)))
-       (buffer-list))))
-
-
-    (dolist (buffer (buffer-list) repos)
-      (if (buffer-is)))
-
-   (when
-       (let* ((file (buffer-file-name it))
-              (repo (and file (vc-git-root (file-truename file)))))
-         (if (and repo (not (assoc repo result)))
-             (push (cons repo
-                         (with-current-buffer buffer
-                           (if (local-variable-p 'vc-git-check)
-                               vc-git-check
-                             (assoc-default default-directory
-                                            vc-git-check-alist
-                                            'string-match))))
-                   result)))
-     (buffer-list))))
-
-(defun vc-check-repos ()
+(defun vc-check-repositories ()
   "Check all known repos and ask for confirmation.
 This function first lists all known repositories. Then for every
 one of them, it checks if they are clean. If not, it asks you if
 you really want to quit."
-  (let* (result
-         (repos
-          (dolist (buffer (buffer-list) result)
-            (let* ((file (buffer-file-name buffer))
-                   (repo (and file (vc-git-root
-                                    (file-truename file)))))
-              (if (and repo (not (assoc repo result)))
-                  (push (cons repo
-                              (with-current-buffer buffer
-                                (if (local-variable-p 'vc-git-check)
-                                    vc-git-check
-                                  (assoc-default default-directory
-                                                 vc-git-check-alist
-                                                 'string-match))))
-                        result))))))
-    (while
-        (and repos
-             (let* ((default-directory (caar repos))
-                    (checks (cdar repos))
-                    error
-                    (checks-ok
-                     (delete
-                      nil
-                      (mapcar
-                       (lambda (check)
-                         (if (condition-case e
-                                 (funcall
-                                  (intern
-                                   (format "vc-git-check-%s-p" check)))
-                               (error (setq error e)))
-                             check))
-                       checks))))
-
-               (if error
-                   (yes-or-no-p
-                    (format "An error occurred on repo %s: %s; Exit anyway?"
-                            (caar repos) error))
-                 (or
-                  (not checks-ok)
-                  ;; if repo is an autocommited one, we don't need
-                  ;; to warn user
-                  (and
-                   (fboundp 'vc-git-auto-committed-repo-p)
-                   (vc-git-auto-committed-repo-p))
-                  (yes-or-no-p
-                   (format "You have %s in repository %s; Exit anyway?"
-                           (mapconcatend
-                            (lambda (e) (assoc-default e vc-git-sym-name))
-                            checks-ok ", " " and ")
-                           default-directory))))))
+  (interactive)
+  (let* ((repos (vc-check--get-repositories)))
+    (while (and repos (vc-check--repository-ok (car repos)))
       (setq repos (cdr repos)))
     (null repos)))
 
+(defun vc-check--repository-ok (repo)
+  "Return non-nil if the repository described by REPO passed the
+specified checks."
+  (let* ((default-directory (car repo))
+         (checks (cddr repo))
+         (backend (downcase (symbol-name (cadr repo))))
+         checks-ok
+         error)
 
-(add-to-list 'kill-emacs-query-functions 'vc-git-check-repos)
+    (setq checks-ok
+          (delete
+           nil
+           (mapcar
+            (lambda (check)
+              (if (condition-case e
+                      (progn
+                        (require (intern (format "vc-%s-check-status" backend)))
+                        (funcall
+                         (intern
+                          (format "vc-%s-check-%s-p" backend check))))
+                    (error (setq error e)))
+                  check))
+            checks)))
+
+    (if error
+        (yes-or-no-p
+         (format "An error occurred on repo %s: %s; Exit anyway?"
+                 (car repo) error))
+      (or
+       (not checks-ok)
+       ;; if repo is an autocommited one, we don't need
+       ;; to warn user
+       (and
+        (fboundp 'vc-git-auto-committed-repo-p)
+        (vc-git-auto-committed-repo-p))
+       (yes-or-no-p
+        (format "You have %s in repository %s; Exit anyway?"
+                (mapconcatend
+                 (lambda (e) (assoc-default e vc-git-sym-name))
+                 checks-ok ", " " and ")
+                default-directory))))))
+
+
+;;;###autoload
+(defun vc-check-status-activate (&optional arg)
+  (interactive "P")
+  (if (< (prefix-numeric-value arg) 0)
+      (remove-hook 'kill-emacs-query-functions 'vc-check-repositories)
+    (add-hook 'kill-emacs-query-functions 'vc-check-repositories)))
+
 
 ;; Helper functions
 
