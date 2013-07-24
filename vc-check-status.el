@@ -30,6 +30,7 @@
 ;; specifies the checks to perform. If it is not set, the associative
 ;; list `vc-check-alist' is looked into.
 
+;;; Code
 
 (defvar vc-check-alist
   '((".*" unpushed changes))
