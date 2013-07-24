@@ -70,8 +70,8 @@ when quitting."
             (unless (or (not backend) (assoc (car backend) result))
               (let (temp)
                 (cond
-                 ((local-variable-p 'vc-checks buffer)
-                  (push (append backend (buffer-local-value vc-checks)) result))
+                 ((local-variable-p 'vc-check buffer)
+                  (push (append backend (buffer-local-value 'vc-check buffer)) result))
                  ((setq temp (assoc-default (car backend) vc-check-alist 'string-match))
                   (push (append backend temp) result)))))))))
     result))
