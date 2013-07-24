@@ -92,23 +92,26 @@ specified checks."
   (let* ((default-directory (car repo))
          (checks (cddr repo))
          (backend (downcase (symbol-name (cadr repo))))
+         (sym-alist (symbol-value (intern (format "vc-%s-sym-name" backend))))
          checks-ok
          error)
 
     (setq checks-ok
-          (delete
-           nil
-           (mapcar
-            (lambda (check)
-              (if (condition-case e
-                      (progn
-                        (require (intern (format "vc-%s-check-status" backend)))
-                        (funcall
+          (mapcar
+           (lambda (check)
+             (condition-case e
+                 (progn
+                   (unless (assoc check sym-alist)
+                     (error "Check `%s' not listed in `vc-%s-sym-name'" check backend))
+                   (and (funcall
                          (intern
-                          (format "vc-%s-check-%s-p" backend check))))
-                    (error (setq error e)))
-                  check))
-            checks)))
+                          (format "vc-%s-check-%s-p" backend check)))
+                        check))
+               (setq error e)))
+           checks))
+
+    ;; Remove nil corresponding to passed checks
+    (setq checks-ok (delete nil checks-ok))
 
     (if error
         (yes-or-no-p
@@ -125,7 +128,7 @@ specified checks."
         (format "You have %s in repository %s; Exit anyway?"
                 (mapconcatend
                  (lambda (e)
-                   (assoc-default e (intern (format "vc-%s-sym-name" backend))))
+                   (assoc-default e sym-alist))
                  checks-ok ", " " and ")
                 default-directory))))))
 
