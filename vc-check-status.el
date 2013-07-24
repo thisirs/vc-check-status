@@ -1,6 +1,7 @@
 ;;; vc-check-status.el --- Warn you when quitting emacs and leaving repo dirty.
 
 ;; Copyright (C) 2012-2013 Sylvain Rousseau <thisirs at gmail dot com>
+;; URL: https://github.com/thisirs/vc-check-status
 
 ;; Author: Sylvain Rousseau <thisirs at gmail dot com>
 ;; Keywords: vc, convenience
