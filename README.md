@@ -4,7 +4,7 @@ This is an Emacs extension that warns you when you are about to quit
 Emacs and leaving a git repository that has some file opened in Emacs
 in a dirty state.
 
-Currently only git repositories are supported with de file
+Currently only git repositories are supported with the file
 `vc-git-check-status.el`. Feel free to write corresponding file for
 other VCSes.
 
