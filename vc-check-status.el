@@ -64,7 +64,7 @@ its backend and KEYWORDS the list of the checks to perform on it
 when quitting."
   (let (result)
     (dolist (buffer (buffer-list) result)
-      (let* ((file (buffer-file-name buffer)))
+      (let ((file (buffer-file-name buffer)))
         (when file
           (let ((backend (vc-check--responsible-backend file)))
             (unless (or (not backend) (assoc (car backend) result))
