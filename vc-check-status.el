@@ -32,6 +32,8 @@
 
 ;;; Code
 
+(require 'vc-git-check-status)
+
 (defvar vc-check-alist
   '((".*" unpushed changes))
   "Alist of file-name patterns vs corresponding states to check.
