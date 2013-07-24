@@ -39,11 +39,11 @@
 (defvar vc-check nil
   "List of states to check.")
 (make-variable-buffer-local 'vc-check)
-(put 'vc-git-check 'safe-local-variable 'vc-check-safe-p)
+(put 'vc-check 'safe-local-variable 'vc-check-safe-p)
 
-(defun vc-git-check-safe-p (keywords)
+(defun vc-check-safe-p (keywords)
   (and (listp keywords)
-       (let ((list (mapcar #'car vc-git-sym-name))
+       (let ((list (mapcar #'car vc-sym-name))
              (safe t))
          (while (and safe keywords)
            (setq safe (memq (car keywords) list)
@@ -126,7 +126,8 @@ specified checks."
        (yes-or-no-p
         (format "You have %s in repository %s; Exit anyway?"
                 (mapconcatend
-                 (lambda (e) (assoc-default e vc-git-sym-name))
+                 (lambda (e)
+                   (assoc-default e (intern (format "vc-%s-sym-name" backend))))
                  checks-ok ", " " and ")
                 default-directory))))))
 
