@@ -44,13 +44,9 @@
 (put 'vc-check 'safe-local-variable 'vc-check-safe-p)
 
 (defun vc-check-safe-p (keywords)
+  "Return non-nil if KEYWORDS is a list of symbols."
   (and (listp keywords)
-       (let ((list (mapcar #'car vc-sym-name))
-             (safe t))
-         (while (and safe keywords)
-           (setq safe (memq (car keywords) list)
-                 keywords (cdr keywords)))
-         (null (null safe)))))
+       (null (delete t (mapcar #'symbolp keywords)))))
 
 (defun vc-check--responsible-backend (file)
   "Return nil if FILE is not under a version controlled system.
