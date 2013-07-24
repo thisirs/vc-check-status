@@ -42,26 +42,6 @@
     (untracked . "untracked files"))
   "Alist of symbols and corresponding description.")
 
-(defvar vc-git-check-alist
-  '((".*" unpushed changes))
-  "Alist of file-name patterns vs corresponding states to check.
-  The list of the checks currently implemented is: dirty,
-  dirty-ignore-submodule, changes, untracked, unpushed.")
-
-(defvar vc-git-check nil
-  "List of states to check.")
-(make-variable-buffer-local 'vc-git-check)
-(put 'vc-git-check 'safe-local-variable 'vc-git-check-safe-p)
-
-(defun vc-git-check-safe-p (keywords)
-  (and (listp keywords)
-       (let ((list (mapcar #'car vc-git-sym-name))
-             (safe t))
-         (while (and safe keywords)
-           (setq safe (memq (car keywords) list)
-                 keywords (cdr keywords)))
-         (null (null safe)))))
-
 (defun vc-git-check-dirty-p ()
   "Return t if local repository is dirty."
   (with-temp-buffer
@@ -107,79 +87,6 @@ and then lists local commits that are not remote ones."
   "Return t if local repository has changes stashed."
   (with-temp-buffer
     (eq 0 (vc-git-command t 1 nil "stash" "show"))))
-
-(defun vc-git-check-repos ()
-  "Check all known repos and ask for confirmation.
-This function first lists all known repositories. Then for every
-one of them, it checks if they are clean. If not, it asks you if
-you really want to quit."
-  (let* (result
-         (repos
-          (dolist (buffer (buffer-list) result)
-            (let* ((file (buffer-file-name buffer))
-                   (repo (and file (vc-git-root
-                                    (file-truename file)))))
-              (if (and repo (not (assoc repo result)))
-                  (push (cons repo
-                              (with-current-buffer buffer
-                                (if (local-variable-p 'vc-git-check)
-                                    vc-git-check
-                                  (assoc-default default-directory
-                                                 vc-git-check-alist
-                                                 'string-match))))
-                        result))))))
-    (while
-        (and repos
-             (let* ((default-directory (caar repos))
-                    (checks (cdar repos))
-                    error
-                    (checks-ok
-                     (delete
-                      nil
-                      (mapcar
-                       (lambda (check)
-                         (if (condition-case e
-                                 (funcall
-                                  (intern
-                                   (format "vc-git-check-%s-p" check)))
-                               (error (setq error e)))
-                             check))
-                       checks))))
-
-               (if error
-                   (yes-or-no-p
-                    (format "An error occurred on repo %s: %s; Exit anyway?"
-                            (caar repos) error))
-                 (or
-                  (not checks-ok)
-                  ;; if repo is an autocommited one, we don't need
-                  ;; to warn user
-                  (and
-                   (fboundp 'vc-git-auto-committed-repo-p)
-                   (vc-git-auto-committed-repo-p))
-                  (yes-or-no-p
-                   (format "You have %s in repository %s; Exit anyway?"
-                           (mapconcatend
-                            (lambda (e) (assoc-default e vc-git-sym-name))
-                            checks-ok ", " " and ")
-                           default-directory))))))
-      (setq repos (cdr repos)))
-    (null repos)))
-
-(add-to-list 'kill-emacs-query-functions 'vc-git-check-repos)
-
-;; Helper functions
-
-(defun mapconcatend (func list separator last-separator)
-  "Like mapconcat but the last separator can be specified. Useful
-when building sentence like blah, blih, bloh and bluh."
-  (let ((beg (butlast list))
-        (end (car (last list))))
-    (if beg
-        (concat (mapconcat func beg separator) last-separator
-                (funcall func end))
-      (funcall func end))))
-
 
 (provide 'vc-git-check-status)
 
