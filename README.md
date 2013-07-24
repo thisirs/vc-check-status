@@ -11,7 +11,7 @@ other VCSes.
 ## Installation and configuration
 
 You just have to put the files `vc-check-status.el` and
-`vc-git-check-status.el` in you load path and require the feature from
+`vc-git-check-status.el` in you load path, require the feature from
 your `.emacs` and activate it.
 
 ```lisp
@@ -21,4 +21,8 @@ your `.emacs` and activate it.
 
 By default, changes and unpushed commits are checked in all git
 repositories. You can change this behavior by tweaking the variables
-`vc-check-alist' and `vc-check'.
+`vc-check-alist` and `vc-check`. `vc-check-alist` controls things
+globally with a regex indicating which repositories are checked and
+what states are checked. `vc-check` is a buffer-local variable that is
+likely to be set in a `.dir-locals.el` file at the root of a
+repository.
