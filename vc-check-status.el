@@ -35,11 +35,12 @@
 (defvar vc-check-alist
   '((".*" unpushed changes))
   "Alist of file-name patterns vs corresponding states to check.
-  The list of the checks currently implemented is: dirty,
-  dirty-ignore-submodule, changes, untracked, unpushed.")
+See corresponding checking functions in
+`vc-<VCS>-check-status.el` file.")
 
 (defvar vc-check nil
-  "List of states to check.")
+  "Buffer-local variable that defines the list of states to
+check.")
 (make-variable-buffer-local 'vc-check)
 (put 'vc-check 'safe-local-variable 'vc-check-safe-p)
 
@@ -49,8 +50,8 @@
        (null (delete t (mapcar #'symbolp keywords)))))
 
 (defun vc-check--responsible-backend (file)
-  "Return nil if FILE is not under a version controlled system.
-Return the version controlled system."
+  "Return the version controlled system the file FILE is under.
+It not under a version controlled system, return nil."
   (catch 'found
     (dolist (backend vc-handled-backends)
       (let ((path (vc-call-backend backend 'responsible-p file)))
