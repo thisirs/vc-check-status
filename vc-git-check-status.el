@@ -42,12 +42,14 @@
     (untracked . "untracked files"))
   "Alist of symbols and corresponding description.")
 
+;;;###autoload
 (defun vc-git-check-dirty-p ()
   "Return t if local repository is dirty."
   (with-temp-buffer
     (vc-git-command t 0 nil "status" "--porcelain")
     (> (buffer-size) 0)))
 
+;;;###autoload
 (defun vc-git-check-dirty-ignore-submodule-p ()
   "Return t if local repository is dirty. Changes in submodules
 are ignored."
@@ -55,6 +57,7 @@ are ignored."
     (vc-git-command t 0 nil "status" "--porcelain" "--ignore-submodules")
     (> (buffer-size) 0)))
 
+;;;###autoload
 (defun vc-git-check-changes-p ()
   "Return t if local repository is changed.
 Untracked files are ignored."
@@ -64,6 +67,7 @@ Untracked files are ignored."
     (flush-lines "^\\?\\?")
     (> (buffer-size) 0)))
 
+;;;###autoload
 (defun vc-git-check-untracked-p ()
   "Return t if local repository has untracked files."
   (with-temp-buffer
@@ -72,6 +76,7 @@ Untracked files are ignored."
     (keep-lines "^\\?\\?")
     (> (buffer-size) 0)))
 
+;;;###autoload
 (defun vc-git-check-unpushed-p ()
   "Return t if local repository has some commit on some branch
 not pushed yet. It first checks if there is any remote repository
@@ -83,6 +88,7 @@ and then lists local commits that are not remote ones."
          (vc-git-command t 0 nil "log" "--branches" "--not" "--remotes" )
          (> (buffer-size) 0))))
 
+;;;###autoload
 (defun vc-git-check-stash-p ()
   "Return t if local repository has changes stashed."
   (with-temp-buffer
