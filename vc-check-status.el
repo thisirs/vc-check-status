@@ -54,7 +54,7 @@ function returns non-nil, the checking is canceled.")
 
 (defun vc-check--responsible-backend (file)
   "Return the version controlled system the file FILE is under.
-It not under a version controlled system, return nil."
+If not under a version controlled system, return nil."
   (catch 'found
     (dolist (backend vc-handled-backends)
       (let ((path (vc-call-backend backend 'responsible-p file)))
