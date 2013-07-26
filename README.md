@@ -4,6 +4,10 @@ This is an Emacs extension that warns you when you are about to quit
 Emacs and leaving a git repository that has some file opened in Emacs
 in a dirty state.
 
+![agenda screenshot](img/screenshot.png)
+
+Oups! Looks like there is changes waiting to be committed!
+
 Currently only git repositories are supported with the file
 `vc-git-check-status.el`. Feel free to write corresponding file for
 other VCSes.
