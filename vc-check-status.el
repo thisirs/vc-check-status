@@ -43,6 +43,10 @@ check.")
 (make-variable-buffer-local 'vc-check)
 (put 'vc-check 'safe-local-variable 'vc-check-safe-p)
 
+(defvar vc-check-cancel-hook nil
+  "Normal hook run by `vc-check-repositories', if any of the
+function returns non-nil, the checking is canceled.")
+
 (defun vc-check-safe-p (keywords)
   "Return non-nil if KEYWORDS is a list of symbols."
   (and (listp keywords)
@@ -119,11 +123,8 @@ specified checks."
                  (car repo) error))
       (or
        (not checks-ok)
-       ;; if repo is an autocommited one, we don't need
-       ;; to warn user
-       (and
-        (fboundp 'vc-git-auto-committed-repo-p)
-        (vc-git-auto-committed-repo-p))
+       ;; Offer the user a way to cancel the warning
+       (run-hook-with-args-until-success 'vc-check-cancel-hook)
        (yes-or-no-p
         (format "You have %s in repository %s; Exit anyway?"
                 (mapconcatend
