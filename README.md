@@ -12,7 +12,11 @@ Currently only git repositories are supported with the file
 `vc-git-check-status.el`. Feel free to write corresponding file for
 other VCSes.
 
-## Installation and configuration
+## Installation
+
+This package is available on MELPA, just type: <kbd>M-x</kbd>
+`package-install` <kbd>RET</kbd> `vc-check-status`. You then need to
+enable it: <kbd>M-x</kbd> `org-context-activate`.
 
 You just have to put the files `vc-check-status.el` and
 `vc-git-check-status.el` in you load path, require the feature from
@@ -22,6 +26,8 @@ your `.emacs` and activate it.
 (require 'vc-check-status)
 (vc-check-status-activate 1)
 ```
+
+## Configuration
 
 By default, changes and unpushed commits are checked in all git
 repositories. You can change this behavior by tweaking the variables
