@@ -3,6 +3,7 @@
 ;; Copyright (C) 2012-2013 Sylvain Rousseau <thisirs at gmail dot com>
 
 ;; Author: Sylvain Rousseau <thisirs at gmail dot com>
+;; Maintainer: Sylvain Rousseau <thisirs at gmail dot com>
 ;; URL: https://github.com/thisirs/vc-check-status
 ;; Keywords: vc, convenience
 

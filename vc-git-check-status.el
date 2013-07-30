@@ -1,8 +1,10 @@
 ;;; vc-git-check-status.el --- Git checking functions
 
-;; Copyright (C) 2012 Sylvain Rousseau <thisirs at gmail dot com>
+;; Copyright (C) 2012-2013 Sylvain Rousseau <thisirs at gmail dot com>
 
 ;; Author: Sylvain Rousseau <thisirs at gmail dot com>
+;; Maintainer: Sylvain Rousseau <thisirs at gmail dot com>
+;; URL: https://github.com/thisirs/vc-check-status.git
 ;; Keywords: vc, convenience
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -19,7 +21,6 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
 
 ;;; Code:
 
