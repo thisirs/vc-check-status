@@ -61,8 +61,8 @@ function returns non-nil, the checking is canceled.")
        (null (delete t (mapcar #'symbolp keywords)))))
 
 (defun vc-check--responsible-backend (file)
-  "Return the version controlled system the file FILE is under.
-If not under a version controlled system, return nil."
+  "Return (ROOT BACKEND) if file is under a version controlled system.
+If not, return nil."
   (catch 'found
     (dolist (backend vc-handled-backends)
       (let ((path (vc-call-backend backend 'responsible-p file)))
