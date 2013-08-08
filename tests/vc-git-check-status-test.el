@@ -46,6 +46,19 @@ created repository to allow easy cloning."
      ,@body
      default-directory))
 
+(defmacro with-submodule (main sub &rest body)
+  `(let* ((submodule (with-empty-repository ,sub
+                      (vc-check-test-shell-commands
+                       "touch blah"
+                       "git add blah"
+                       "git commit -m First"))))
+    (with-empty-repository ,main
+      (vc-check-test-shell-commands
+       (format "git submodule add %s %s"
+               submodule "submodule")
+       "git commit -am \"Add submodule\"")
+      ,@body)))
+
 (defmacro with-untracked (&rest body)
   "Execute BODY in a repository with untracked file."
   `(with-delete-repository
