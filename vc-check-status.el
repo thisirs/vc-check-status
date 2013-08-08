@@ -45,11 +45,13 @@
 See corresponding checking functions in
 `vc-<VCS>-check-status.el` file.")
 
-(defvar vc-check nil
-  "Buffer-local variable that defines the list of states to
+;;;###autoload
+(progn
+  (defvar vc-check nil
+    "Buffer-local variable that defines the list of states to
 check.")
-(make-variable-buffer-local 'vc-check)
-(put 'vc-check 'safe-local-variable 'vc-check-safe-p)
+  (make-variable-buffer-local 'vc-check)
+  (put 'vc-check 'safe-local-variable 'vc-check-safe-p))
 
 (defvar vc-check-cancel-hook nil
   "Normal hook run by `vc-check-repositories', if any of the
