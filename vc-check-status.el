@@ -80,7 +80,10 @@ when quitting."
       (let ((file (buffer-file-name buffer)))
         (when file
           (let ((backend (vc-check--responsible-backend file)))
-            (unless (or (not backend) (assoc (car backend) result))
+            (unless (or (not backend) (assoc (car backend) result)
+                        (with-current-buffer buffer
+                          (run-hook-with-args-until-success
+                           'vc-check-cancel-hook)))
               (let (temp)
                 (cond
                  ((and (local-variable-p 'vc-check buffer)
@@ -134,8 +137,6 @@ specified checks."
                  (car repo) error))
       (or
        (not checks-ok)
-       ;; Offer the user a way to cancel the warning
-       (run-hook-with-args-until-success 'vc-check-cancel-hook)
        (yes-or-no-p
         (format "You have %s in repository %s; Exit anyway?"
                 (mapconcatend
