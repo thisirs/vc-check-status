@@ -45,6 +45,11 @@
 See corresponding checking functions in
 `vc-<VCS>-check-status.el` file.")
 
+(defvar vc-check-backend
+  '(Git)
+  "Backends that are checked. A subset of `vc-handled-backends'.
+Currently, only git backends are supported.")
+
 ;;;###autoload
 (progn
   (defvar vc-check nil
@@ -80,17 +85,19 @@ when quitting."
       (let ((file (buffer-file-name buffer)))
         (when file
           (let ((backend (vc-check--responsible-backend file)))
-            (unless (or (not backend) (assoc (car backend) result)
-                        (with-current-buffer buffer
-                          (run-hook-with-args-until-success
-                           'vc-check-cancel-hook)))
-              (let (temp)
-                (cond
-                 ((and (local-variable-p 'vc-check buffer)
-                       (buffer-local-value 'vc-check buffer))
-                  (push (append backend (buffer-local-value 'vc-check buffer)) result))
-                 ((setq temp (assoc-default (car backend) vc-check-alist 'string-match))
-                  (push (append backend temp) result)))))))))
+            (if (and backend
+                     (memq (car (cdr backend)) vc-check-backend)
+                     (not (assoc (car backend) result))
+                     (not (with-current-buffer buffer
+                            (run-hook-with-args-until-success
+                             'vc-check-cancel-hook))))
+                (let (temp)
+                  (cond
+                   ((and (local-variable-p 'vc-check buffer)
+                         (buffer-local-value 'vc-check buffer))
+                    (push (append backend (buffer-local-value 'vc-check buffer)) result))
+                   ((setq temp (assoc-default (car backend) vc-check-alist 'string-match))
+                    (push (append backend temp) result)))))))))
     result))
 
 (defun vc-check-repositories ()
@@ -110,40 +117,44 @@ specified checks."
   (let* ((default-directory (car repo))
          (checks (cddr repo))
          (backend (downcase (symbol-name (cadr repo))))
-         (sym-alist (symbol-value (intern (format "vc-%s-sym-name" backend))))
+         (sym (intern (format "vc-%s-sym-name" backend)))
+         sym-alist
          checks-ok
          error)
 
-    (setq checks-ok
-          (mapcar
-           (lambda (check)
-             (condition-case e
-                 (progn
-                   (unless (assoc check sym-alist)
-                     (error "Check `%s' not listed in `vc-%s-sym-name'" check backend))
-                   (and (funcall
-                         (intern
-                          (format "vc-%s-check-%s-p" backend check)))
-                        check))
-               (setq error e)))
-           checks))
+    (if (not (boundp sym))
+        (warn "Backend %s not implemented" backend)
+      (setq sym-alist (symbol-value sym))
+      (setq checks-ok
+            (mapcar
+             (lambda (check)
+               (condition-case e
+                   (progn
+                     (unless (assoc check sym-alist)
+                       (error "Check `%s' not listed in `vc-%s-sym-name'" check backend))
+                     (and (funcall
+                           (intern
+                            (format "vc-%s-check-%s-p" backend check)))
+                          check))
+                 (setq error e)))
+             checks))
 
-    ;; Remove nil corresponding to passed checks
-    (setq checks-ok (delete nil checks-ok))
+      ;; Remove nil corresponding to passed checks
+      (setq checks-ok (delete nil checks-ok))
 
-    (if error
-        (yes-or-no-p
-         (format "An error occurred on repo %s: %s; Exit anyway?"
-                 (car repo) error))
-      (or
-       (not checks-ok)
-       (yes-or-no-p
-        (format "You have %s in repository %s; Exit anyway?"
-                (mapconcatend
-                 (lambda (e)
-                   (assoc-default e sym-alist))
-                 checks-ok ", " " and ")
-                default-directory))))))
+      (if error
+          (yes-or-no-p
+           (format "An error occurred on repo %s: %s; Exit anyway?"
+                   (car repo) error))
+        (or
+         (not checks-ok)
+         (yes-or-no-p
+          (format "You have %s in repository %s; Exit anyway?"
+                  (mapconcatend
+                   (lambda (e)
+                     (assoc-default e sym-alist))
+                   checks-ok ", " " and ")
+                  default-directory)))))))
 
 
 ;;;###autoload
