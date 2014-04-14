@@ -1,6 +1,6 @@
 ;;; vc-git-check-status.el --- Git checking functions
 
-;; Copyright (C) 2012-2013 Sylvain Rousseau <thisirs at gmail dot com>
+;; Copyright (C) 2012-2014 Sylvain Rousseau <thisirs at gmail dot com>
 
 ;; Author: Sylvain Rousseau <thisirs at gmail dot com>
 ;; Maintainer: Sylvain Rousseau <thisirs at gmail dot com>
