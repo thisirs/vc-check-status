@@ -28,6 +28,7 @@
 
 (defconst vc-git-sym-name
   '((unpushed . "unpushed commits")
+    (unpushed-current . "unpushed commits in current branch")
     (dirty . "changes or untracked files")
     (dirty-ignore-submodule . "changes or untracked files")
     (changes . "changes")
