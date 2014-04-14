@@ -79,12 +79,10 @@ and then lists local commits that are not remote ones."
 (defun vc-git-check-unpushed-current-p ()
   "Return non-nil if local repository has some commit on current
 branch not pushed yet."
-  (and (with-temp-buffer
-         (vc-git-command t 0 nil "remote" "show")
-         (> (buffer-size) 0))
-       (with-temp-buffer
-         (vc-git-command t 0 nil "log" "--not" "--remotes" )
-         (> (buffer-size) 0))))
+  (with-temp-buffer
+    (and
+     (eq 0 (vc-git-command t t nil "cherry"))
+     (> (buffer-size) 0))))
 
 (defun vc-git-check-stash-p ()
   "Return t if local repository has changes stashed."
