@@ -160,7 +160,7 @@ specified checks."
           (format "You have %s in repository %s; Exit anyway?"
                   (mapconcatend
                    (lambda (e)
-                     (assoc-default e sym-alist))
+                     (if (stringp e) e (assoc-default e sym-alist)))
                    checks-ok ", " " and ")
                   default-directory)))))))
 
