@@ -71,35 +71,25 @@ created repository to allow easy cloning."
      ,@body))
 
 (defmacro with-submodule (main sub &rest body)
-  `(let* ((submodule (with-empty-repository ,sub
-                      (vc-check-test-shell-commands
-                       "touch blah"
-                       "git add blah"
-                       "git commit -m First"))))
-    (with-empty-repository ,main
-      (vc-check-test-shell-commands
-       (format "git submodule add %s %s"
-               submodule "submodule")
-       "git commit -am \"Add submodule\"")
-      ,@body)))
+  `(let* ((submodule (with-standard-repository ,sub)))
+     (with-standard-repository ,main
+       (vc-check-test-shell-commands
+        (format "git submodule add %s %s"
+                submodule "submodule")
+        "git commit -am \"Add submodule\"")
+       ,@body)))
 
 (defmacro with-untracked (&rest body)
   "Execute BODY in a repository with untracked file."
-  `(with-delete-repository
-    (with-empty-repository "untracked"
-      (shell-command "touch blah")
-      ,@body)))
+  `(with-standard-repository "untracked"
+       (make-changes "foo")
+     ,@body))
 
 (defmacro with-changes (&rest body)
   "Execute BODY in a repository with changes."
-  `(with-delete-repository
-    (with-empty-repository "untracked"
-      (vc-check-test-shell-commands
-       "touch blah"
-       "git add ."
-       "git commit -m Blah"
-       "echo blah > blah")
-      ,@body)))
+  `(with-standard-repository "changes"
+       (make-changes)
+     ,@body))
 
 (defmacro with-clone-of (prefix origin &rest body)
   "Execute BODY in a cloned repository of ORIGIN."
@@ -118,13 +108,9 @@ created repository to allow easy cloning."
 (defmacro with-cloned-unpushed (&rest body)
   "Execute BODY in a cloned repository that has unpushed
 commits."
-  `(with-delete-repository
-    (with-clone-of "local" (with-empty-repository "origin")
-      (vc-check-test-shell-commands
-       "touch blah"
-       "git add ."
-       "git commit -m Blah")
-      ,@body)))
+  `(with-cloned
+    (make-commit)
+    ,@body))
 
 (defmacro with-delete-repository (&rest body)
   "Execute BODY and delete all the repositories created during
