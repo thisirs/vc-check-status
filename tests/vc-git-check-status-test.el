@@ -124,35 +124,90 @@ the process."
 
 (ert-deftest vc-git-check-status-untracked ()
   "Check for the untracked state."
-  (with-untracked
-   (should (vc-git-check-dirty-p))
-   (should (vc-git-check-dirty-ignore-submodule-p))
-   (should-not (vc-git-check-changes-p))
-   (should (vc-git-check-untracked-p))
-   (should-not (vc-git-check-unpushed-p))
-   (should-not (vc-git-check-unpushed-current-p))
-   (should-not (vc-git-check-stash-p))))
+  (with-delete-repository
+   (with-untracked
+    (should (vc-git-check-dirty-p))
+    (should (vc-git-check-dirty-ignore-submodule-p))
+    (should-not (vc-git-check-changes-p))
+    (should (vc-git-check-untracked-p))
+    (should-not (vc-git-check-unpushed-p))
+    (should-not (vc-git-check-unpushed-current-p))
+    (should-not (vc-git-check-stash-p)))))
 
 (ert-deftest vc-git-check-status-changes ()
   "Check for the changes state."
-  (with-changes
-   (should (vc-git-check-dirty-p))
-   (should (vc-git-check-dirty-ignore-submodule-p))
-   (should (vc-git-check-changes-p))
-   (should-not (vc-git-check-untracked-p))
-   (should-not (vc-git-check-unpushed-p))
-   (should-not (vc-git-check-unpushed-current-p))
-   (should-not (vc-git-check-stash-p))))
+  (with-delete-repository
+   (with-changes
+    (should (vc-git-check-dirty-p))
+    (should (vc-git-check-dirty-ignore-submodule-p))
+    (should (vc-git-check-changes-p))
+    (should-not (vc-git-check-untracked-p))
+    (should-not (vc-git-check-unpushed-p))
+    (should-not (vc-git-check-unpushed-current-p))
+    (should-not (vc-git-check-stash-p)))))
 
-(ert-deftest vc-git-check-status-unpushed ()
-  "Check for the unpushed state."
-  (with-cloned-unpushed
-   (should-not (vc-git-check-dirty-p))
-   (should-not (vc-git-check-dirty-ignore-submodule-p))
-   (should-not (vc-git-check-changes-p))
-   (should-not (vc-git-check-untracked-p))
-   (should (vc-git-check-unpushed-p))
-   (should (vc-git-check-unpushed-current-p))
-   (should-not (vc-git-check-stash-p))))
+(ert-deftest vc-git-check-status-unpushed-1 ()
+  "Check for unpushed commits in local repository."
+  (with-delete-repository
+   (with-standard-repository
+    (should-not (vc-git-check-unpushed-p)))))
+
+(ert-deftest vc-git-check-status-unpushed-2 ()
+  "Check for unpushed commits in cloned repository."
+  (with-delete-repository
+   (with-cloned
+    (should-not (vc-git-check-unpushed-p)))))
+
+(ert-deftest vc-git-check-status-unpushed-3 ()
+  "Check for unpushed commits in unpushed repository."
+  (with-delete-repository
+   (with-cloned-unpushed
+    (should (vc-git-check-unpushed-p)))))
+
+(ert-deftest vc-git-check-status-unpushed-4 ()
+  "Check for unpushed commits in unpushed repository, other
+branch."
+  (with-delete-repository
+   (with-cloned-unpushed
+    (vc-check-test-shell-commands
+     "git checkout -b other")
+    (should (vc-git-check-unpushed-p)))))
+
+(ert-deftest vc-git-check-status-unpushed-5 ()
+  "Check for unpushed commits in unpushed repository only on
+master branch when in other branch."
+  (with-delete-repository
+   (with-cloned-unpushed
+    (vc-check-test-shell-commands
+     "git checkout -b other")
+    (should (vc-git-check-unpushed-p "master")))))
+
+(ert-deftest vc-git-check-status-unpushed-6 ()
+  "Check for unpushed commits in unpushed repository only on
+master branch when in master branch."
+  (with-delete-repository
+   (with-cloned-unpushed
+    (should (vc-git-check-unpushed-p "master")))))
+
+(ert-deftest vc-git-check-status-unpushed-current-1 ()
+  "Check for unpushed current, simplest case."
+  (with-delete-repository
+   (with-cloned
+    (should-not (vc-git-check-unpushed-current-p)))))
+
+(ert-deftest vc-git-check-status-unpushed-current-2 ()
+  "Check for unpushed current, simplest case."
+  (with-delete-repository
+   (with-cloned-unpushed
+    (should (vc-git-check-unpushed-current-p)))))
+
+(ert-deftest vc-git-check-status-unpushed-current-3 ()
+  "Check for unpushed current when in other branch."
+  (with-delete-repository
+   (with-cloned-unpushed
+    (vc-check-test-shell-commands
+     "git checkout -b other")
+    (should-not (vc-git-check-unpushed-current-p)))))
+
 
 ;;; vc-git-check-status-test.el ends here
