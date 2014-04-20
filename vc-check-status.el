@@ -140,7 +140,7 @@ specified checks."
                          (params (if (listp check) (cdr check))))
                      (unless (assoc sym sym-alist)
                        (error "Check `%s' not listed in `vc-%s-sym-name'" sym backend))
-                     (let ((msg (apply (intern (format "vc-%s-check-%s-p" backend check)) params)))
+                     (let ((msg (apply (intern (format "vc-%s-check-%s-p" backend sym)) params)))
                        (if (stringp msg)
                            msg
                          (and msg sym))))
