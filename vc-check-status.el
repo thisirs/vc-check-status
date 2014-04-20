@@ -42,8 +42,9 @@
 (defvar vc-check-alist
   '((".*" unpushed changes))
   "Alist of file-name patterns vs corresponding states to check.
-See corresponding checking functions in
-`vc-<VCS>-check-status.el` file.")
+
+A state is either a symbol described in `vc-<VCS>-sym-name` or a
+list of a symbol and its parameters.")
 
 (defvar vc-check-backend
   '(Git)
@@ -63,9 +64,15 @@ check.")
 function returns non-nil, the checking is canceled.")
 
 (defun vc-check-safe-p (keywords)
-  "Return non-nil if KEYWORDS is a list of symbols."
+  "Return non-nil if KEYWORDS is a list of states as described in
+`vc-check-alist`."
   (and (listp keywords)
-       (null (delete t (mapcar #'symbolp keywords)))))
+       (null (delete t (mapcar
+                        (lambda (e)
+                          (or (symbolp e)
+                              (and (listp e)
+                                   (symbolp (car e)))))
+                        keywords)))))
 
 (defun vc-check--responsible-backend (file)
   "Return (ROOT BACKEND) if file is under a version controlled system.
@@ -129,13 +136,14 @@ specified checks."
             (mapcar
              (lambda (check)
                (condition-case e
-                   (progn
-                     (unless (assoc check sym-alist)
-                       (error "Check `%s' not listed in `vc-%s-sym-name'" check backend))
-                     (and (funcall
-                           (intern
-                            (format "vc-%s-check-%s-p" backend check)))
-                          check))
+                   (let ((sym (if (listp check) (car check) check))
+                         (params (if (listp check) (cdr check))))
+                     (unless (assoc sym sym-alist)
+                       (error "Check `%s' not listed in `vc-%s-sym-name'" sym backend))
+                     (let ((msg (apply (intern (format "vc-%s-check-%s-p" backend check)) params)))
+                       (if (stringp msg)
+                           msg
+                         (and msg sym))))
                  (setq error e)))
              checks))
 
