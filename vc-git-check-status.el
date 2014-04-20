@@ -66,16 +66,29 @@ Untracked files are ignored."
     (keep-lines "^\\?\\?")
     (> (buffer-size) 0)))
 
-(defun vc-git-check-unpushed-p ()
-  "Return t if local repository has some commit on some branch
-not pushed yet. It first checks if there is any remote repository
-and then lists local commits that are not remote ones."
+(defun vc-git-check-unpushed-p (&rest branches)
+  "Return non-nil if local repository has some unpushed commits.
+
+If BRANCHES is nil, it tests for unpushed commits on all existing
+ branches. If not, it limits its search on BRANCHES only."
   (and (with-temp-buffer
          (vc-git-command t 0 nil "remote" "show")
          (> (buffer-size) 0))
-       (with-temp-buffer
-         (vc-git-command t 0 nil "log" "--branches" "--not" "--remotes" )
-         (> (buffer-size) 0))))
+       (if branches
+           (let (branch)
+             (while (and (setq branch (pop branches))
+                         (not (with-temp-buffer
+                                ;; For some reason, git expects to
+                                ;; find a glob character in branch...
+                                ;; So insert one...
+                                (let ((branch+glob (concat "[" (substring branch 0 1) "]" (substring branch 1))))
+                                  (vc-git-command t 0 nil "log" (format "--branches=%s" branch+glob) "--not" "--remotes" )
+                                  (> (buffer-size) 0))))))
+             (if branch
+                 (format "unpushed commits on %s" branch)))
+         (with-temp-buffer
+           (vc-git-command t 0 nil "log" "--branches" "--not" "--remotes" )
+           (> (buffer-size) 0)))))
 
 (defun vc-git-check-unpushed-current-p ()
   "Return non-nil if local repository has some commit on current
