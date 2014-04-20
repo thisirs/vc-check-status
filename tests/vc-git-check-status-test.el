@@ -34,6 +34,23 @@
           (shell-command command))
         commands))
 
+(defun make-changes (&optional filename)
+  "Make changes to the current repository.
+
+Create a file FILENAME if it does not exist and change it if it
+exists."
+  (vc-check-test-shell-commands
+   (concat "echo 1 >> " (if filename
+                            (shell-quote-argument filename)
+                          "blah"))))
+
+(defun make-commit ()
+  "Add a commit to the current repository."
+  (make-changes)
+  (vc-check-test-shell-commands
+   "git add -A ."
+   "git commit -m blah"))
+
 (defmacro with-empty-repository (prefix &rest body)
   "Create an empty repository in a temporary directory prefixed
 by PREFIX and execute BODY in it. Return the path of the newly
@@ -45,6 +62,13 @@ created repository to allow easy cloning."
      (shell-command "git init .")
      ,@body
      default-directory))
+
+(defmacro with-standard-repository (prefix &rest body)
+  "Executes BODY in a repository with one commit."
+  (declare (indent 2))
+  `(with-empty-repository ,prefix
+     (make-commit)
+     ,@body))
 
 (defmacro with-submodule (main sub &rest body)
   `(let* ((submodule (with-empty-repository ,sub
@@ -84,6 +108,11 @@ created repository to allow easy cloning."
            (file-name-as-directory (make-temp-file ,prefix :dir))))
      (shell-command (concat "git clone " ,origin " " default-directory))
      (add-to-list 'vc-check-test-repository-list default-directory)
+     ,@body))
+
+(defmacro with-cloned (&rest body)
+  "Executes BODY in a cloned repository."
+  `(with-clone-of "local" (with-standard-repository "origin")
      ,@body))
 
 (defmacro with-cloned-unpushed (&rest body)
