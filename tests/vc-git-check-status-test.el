@@ -180,7 +180,7 @@ master branch when in other branch."
    (with-cloned-unpushed
     (vc-check-test-shell-commands
      "git checkout -b other")
-    (should (vc-git-check-unpushed-p "master")))))
+    (should (equal "unpushed commits on master" (vc-git-check-unpushed-p "master"))))))
 
 (ert-deftest vc-git-check-status-unpushed-6 ()
   "Check for unpushed commits in unpushed repository only on
