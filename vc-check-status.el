@@ -144,7 +144,7 @@ specified checks."
                        (if (stringp msg)
                            msg
                          (and msg sym))))
-                 (setq error e)))
+                 (error (setq error e))))
              checks))
 
       ;; Remove nil corresponding to passed checks
