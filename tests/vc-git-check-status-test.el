@@ -65,7 +65,7 @@ created repository to allow easy cloning."
 
 (defmacro with-standard-repository (prefix &rest body)
   "Executes BODY in a repository with one commit."
-  (declare (indent 2))
+  (declare (indent 1))
   `(with-empty-repository ,prefix
      (make-commit)
      ,@body))
@@ -82,13 +82,13 @@ created repository to allow easy cloning."
 (defmacro with-untracked (&rest body)
   "Execute BODY in a repository with untracked file."
   `(with-standard-repository "untracked"
-       (make-changes "foo")
+     (make-changes "foo")
      ,@body))
 
 (defmacro with-changes (&rest body)
   "Execute BODY in a repository with changes."
   `(with-standard-repository "changes"
-       (make-changes)
+     (make-changes)
      ,@body))
 
 (defmacro with-clone-of (prefix origin &rest body)
@@ -149,8 +149,8 @@ the process."
 (ert-deftest vc-git-check-status-unpushed-1 ()
   "Check for unpushed commits in local repository."
   (with-delete-repository
-   (with-standard-repository
-    (should-not (vc-git-check-unpushed-p)))))
+   (with-standard-repository "unpushed"
+     (should-not (vc-git-check-unpushed-p)))))
 
 (ert-deftest vc-git-check-status-unpushed-2 ()
   "Check for unpushed commits in cloned repository."
