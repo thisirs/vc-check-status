@@ -33,7 +33,9 @@
     (dirty-ignore-submodule . "changes or untracked files")
     (changes . "changes")
     (stash . "stashed changes")
-    (untracked . "untracked files"))
+    (untracked . "untracked files")
+    (on-branch . "forbidden branches")
+    (not-on-branch . "required branches"))
   "Alist of symbols and corresponding description.")
 
 (defun vc-git-check-dirty-p ()
@@ -102,6 +104,24 @@ branch not pushed yet."
   "Return t if local repository has changes stashed."
   (with-temp-buffer
     (eq 0 (vc-git-command t 1 nil "stash" "show"))))
+
+(defun vc-git-check-on-branch-p (branch)
+  "Return non-nil if current branch is BRANCH or belongs to
+BRANCH if it is a list."
+  (if (stringp branch)
+      (setq branch (list branch)))
+  (let ((current-branch
+         (substring
+          (with-temp-buffer
+            (vc-git-command t 1 nil "symbolic-ref" "-q" "HEAD")
+            (buffer-string))
+          11 -1)))
+    (and (member current-branch branch) t)))
+
+(defun vc-git-check-not-on-branch-p (branch)
+  "Return non-nil if current branch is not BRANCH or does not
+belong to BRANCH if it is a list."
+  (not (vc-git-check-on-branch-p branch)))
 
 (provide 'vc-git-check-status)
 
