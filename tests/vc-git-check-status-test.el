@@ -209,5 +209,15 @@ master branch when in master branch."
      "git checkout -b other")
     (should-not (vc-git-check-unpushed-current-p)))))
 
+(ert-deftest vc-git-check-status-on-branch ()
+  "Check if on specified branches or not."
+  (with-delete-repository
+   (with-standard-repository "not-on-branch"
+     (should (vc-git-check-on-branch-p "master"))
+     (should (vc-git-check-on-branch-p '("dev" "master")))
+     (should-not (vc-git-check-on-branch-p "dev"))
+     (should-not (vc-git-check-on-branch-p '("other" "dev")))
+     (should-not (vc-git-check-not-on-branch-p "master"))
+     (should-not (vc-git-check-not-on-branch-p '("dev" "master"))))))
 
 ;;; vc-git-check-status-test.el ends here
