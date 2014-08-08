@@ -35,7 +35,7 @@
 
 ;; See documentation on https://github.com/thisirs/vc-check-status#vc-check-status
 
-;;; Code
+;;; Code:
 
 (require 'vc-git-check-status)
 

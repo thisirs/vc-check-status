@@ -22,7 +22,7 @@
 
 ;;; Commentary:
 
-;;; Code
+;;; Code:
 
 (defvar vc-check-test-repository-list ()
   "List of repositories used in the tests.")
