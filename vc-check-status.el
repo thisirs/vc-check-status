@@ -77,10 +77,14 @@ function returns non-nil, the checking is canceled.")
 (defun vc-check--responsible-backend (file)
   "Return (ROOT BACKEND) if file is under a version controlled system.
 If not, return nil."
-  (catch 'found
-    (dolist (backend vc-handled-backends)
-      (let ((path (vc-call-backend backend 'responsible-p file)))
-        (if path (throw 'found (list path backend)))))))
+  (let ((backend (vc-backend file)))
+    (if backend
+        (condition-case err
+            (list (vc-call-backend backend 'root file) backend)
+          (vc-not-supported
+           (unless (eq (cadr err) 'root)
+             (signal (car err) (cdr err)))
+           nil)))))
 
 (defun vc-check--get-repositories ()
   "Return a list of elements of the form (PATH BACKEND
