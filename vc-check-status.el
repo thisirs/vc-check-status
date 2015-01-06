@@ -5,6 +5,7 @@
 ;; Author: Sylvain Rousseau <thisirs at gmail dot com>
 ;; Maintainer: Sylvain Rousseau <thisirs at gmail dot com>
 ;; URL: https://github.com/thisirs/vc-check-status
+;; Version: 0.1
 ;; Keywords: vc, convenience
 
 ;; This program is free software; you can redistribute it and/or modify
