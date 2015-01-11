@@ -38,6 +38,7 @@
 
 ;;; Code:
 
+(require 'vc)
 (require 'vc-git-check-status)
 
 (defvar vc-check-alist
