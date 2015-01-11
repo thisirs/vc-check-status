@@ -75,17 +75,15 @@ function returns non-nil, the checking is canceled.")
                                    (symbolp (car e)))))
                         keywords)))))
 
-(defun vc-check--responsible-backend (file)
-  "Return (ROOT BACKEND) if file is under a version controlled system.
-If not, return nil."
-  (let ((backend (vc-backend file)))
-    (if backend
-        (condition-case err
-            (list (vc-call-backend backend 'root file) backend)
-          (vc-not-supported
-           (unless (eq (cadr err) 'root)
-             (signal (car err) (cdr err)))
-           nil)))))
+(defun vc-check--responsible-backend (buffer)
+  "Return (ROOT BACKEND) if the file visited by BUFFER is under a
+version controlled system. Otherwise, return nil."
+  (condition-case nil
+      (with-current-buffer buffer
+        (let ((backend (vc-deduce-backend)))
+          (if backend
+              (list (vc-call-backend backend 'root default-directory) backend))))
+    (error)))
 
 (defun vc-check--get-repositories ()
   "Return a list of elements of the form (PATH BACKEND
@@ -94,22 +92,20 @@ its backend and KEYWORDS the list of the checks to perform on it
 when quitting."
   (let (result)
     (dolist (buffer (buffer-list) result)
-      (let ((file (buffer-file-name buffer)))
-        (when file
-          (let ((backend (vc-check--responsible-backend file)))
-            (if (and backend
-                     (memq (car (cdr backend)) vc-check-backend)
-                     (not (assoc (car backend) result))
-                     (not (with-current-buffer buffer
-                            (run-hook-with-args-until-success
-                             'vc-check-cancel-hook))))
-                (let (temp)
-                  (cond
-                   ((and (local-variable-p 'vc-check buffer)
-                         (buffer-local-value 'vc-check buffer))
-                    (push (append backend (buffer-local-value 'vc-check buffer)) result))
-                   ((setq temp (assoc-default (car backend) vc-check-alist 'string-match))
-                    (push (append backend temp) result)))))))))
+      (let ((root+backend (vc-check--responsible-backend buffer)))
+        (if (and root+backend
+                 (memq (cadr root+backend) vc-check-backend)
+                 (not (assoc (car root+backend) result))
+                 (not (with-current-buffer buffer
+                        (run-hook-with-args-until-success
+                         'vc-check-cancel-hook))))
+            (let (temp)
+              (cond
+               ((and (local-variable-p 'vc-check buffer)
+                     (buffer-local-value 'vc-check buffer))
+                (push (append root+backend (buffer-local-value 'vc-check buffer)) result))
+               ((setq temp (assoc-default (car root+backend) vc-check-alist 'string-match))
+                (push (append root+backend temp) result)))))))
     result))
 
 (defun vc-check-repositories ()
