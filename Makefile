@@ -12,7 +12,7 @@ EMACS_D     = ~/.emacs.d
 USER_ELPA_D = $(EMACS_D)/elpa
 
 SRCS        = vc-git-check-status.el vc-check-status.el
-TESTS       = $(wildcard tests/*.el)
+TESTS       = $(wildcard tests/*-tests.el)
 TAR         = $(DIST)/vc-check-status-$(VERSION).tar
 
 
@@ -22,7 +22,7 @@ all : $(PKG_DIR) $(TAR)
 check : $(PKG_DIR)
 	$(CASK) exec $(EMACSBATCH) \
 	$(patsubst %, -l %, $(SRCS) $(TESTS)) \
-	-f ert-run-tests-batch-and-exit
+	-l tests/vc-check-status-testrunner.el
 
 install : $(TAR)
 	$(EMACSBATCH) -l package -f package-initialize \
