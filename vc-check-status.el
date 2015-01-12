@@ -81,7 +81,7 @@ function returns non-nil, the checking is canceled.")
 version controlled system. Otherwise, return nil."
   (condition-case nil
       (with-current-buffer buffer
-        (let ((backend (vc-deduce-backend)))
+        (let ((backend (vc-responsible-backend buffer-file-name)))
           (if backend
               (list (vc-call-backend backend 'root default-directory) backend))))
     (error)))
