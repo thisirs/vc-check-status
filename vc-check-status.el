@@ -1,6 +1,6 @@
 ;;; vc-check-status.el --- Warn you when quitting emacs and leaving repo dirty.
 
-;; Copyright (C) 2012-2016 Sylvain Rousseau <thisirs at gmail dot com>
+;; Copyright (C) 2012-2017 Sylvain Rousseau <thisirs at gmail dot com>
 
 ;; Author: Sylvain Rousseau <thisirs at gmail dot com>
 ;; Maintainer: Sylvain Rousseau <thisirs at gmail dot com>
